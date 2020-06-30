@@ -17,30 +17,24 @@ CLASS ZCL_FLP_HTTP_HANDLER IMPLEMENTATION.
 
 
   METHOD if_http_extension~handle_request.
+    DATA week TYPE scal-week.
     CALL METHOD super->if_http_extension~handle_request
       EXPORTING
         server = server.
+
+    CALL FUNCTION 'DATE_GET_WEEK'
+      EXPORTING
+        date = sy-datum
+      IMPORTING
+        week = week.
 
     DATA(response) = server->response->get_cdata( ).
 
     DATA(add) =
     `<script>` &&
-    ` const week = date => {` &&
-    `   date = date || new Date();` &&
-    `   date.setHours(0, 0, 0, 0);` &&
-    `   date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);` &&
-    `   var week1 = new Date(date.getFullYear(), 0, 4);` &&
-    `   return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);` &&
-    ` };` &&
-    ` ` &&
-    ` const weekYear = date => {` &&
-    `   date = date || new Date();` &&
-    `   date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);` &&
-    `   return date.getFullYear();` &&
-    ` };` &&
     `if ('serviceWorker' in navigator) {` &&
     `  window.addEventListener('load', function() {` &&
-    '    navigator.serviceWorker.register(`/sap/zsw?${week(new Date())}${weekYear(new Date())}`);' &&
+    |    navigator.serviceWorker.register(`/sap/zsw?${ week }2`);| &&
     `  })` &&
     `}` &&
     `</script>` &&
